@@ -1,3 +1,4 @@
+import NodeCache from "node-cache";
 import Plan from "../models/Plan.js";
 import { generateTrailLicense } from "../services/authTrailService.js";
 // export async function generateTrailLicenseController(req, res) {
@@ -74,18 +75,35 @@ export const generateTrailLicenseController = async (req, res) => {
   };
   
 
-  export const getallplans = async(req, res)=>{
+  const cache = new NodeCache({ stdTTL: 3600, checkperiod: 600 });
+
+  export const getallplans = async (req, res) => {
     try {
-        const allPlans = await Plan.find()
-        return res.status(201).json({
-            message:"All Plans",
-            allPlans
-            
-        })
+      const cachedPlans = cache.get("allPlans");
+  
+      if (cachedPlans) {
+        return res.status(200).json({
+          message: "All Plans (from cache)",
+          allPlans: cachedPlans,
+        });
+      }
+  
+      const allPlans = await Plan.find();
+  
+      cache.set("allPlans", allPlans);
+  
+      return res.status(200).json({
+        message: "All Plans",
+        allPlans,
+      });
     } catch (error) {
-        
+      console.error("Error fetching plans:", error);
+      return res.status(500).json({
+        message: "Error fetching plans",
+        error: error.message,
+      });
     }
-  }
+  };
 
   export const getPlanbyId = async(req, res)=>{
     try {
