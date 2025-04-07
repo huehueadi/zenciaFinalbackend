@@ -5,6 +5,8 @@ import { sendOTP } from "../utility/mailer.js";
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 
+
+
 export const register = async (req, res) => {
   const { firstName, lastName, email, password, mobileNumber, city, state, country } = req.body;
 
@@ -23,7 +25,7 @@ export const register = async (req, res) => {
     const otp = generateOTP();
     console.log("Generated OTP:", otp);
 
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); 
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
     console.log("OTP expiry set for:", otpExpires);
 
     const user = new User({
@@ -37,6 +39,7 @@ export const register = async (req, res) => {
       country,
       otp,
       otpExpires,
+      isOnboardingDone: false, // Explicitly set for new users
     });
 
     console.log("Saving user to the database...");
@@ -81,12 +84,14 @@ export const verifyOTP = async (req, res) => {
     await user.save();
     console.log("User status updated successfully");
 
-    const jwtToken = jwt.sign({ id: user._id },'Key', {expiresIn: '1h' });
+    const jwtToken = jwt.sign({ id: user._id }, 'Key', { expiresIn: '1h' });
+    const redirectPath = user.isOnboardingDone ? '/dashboard' : '/auth/onboard'; // Added redirectPath
 
     return res.status(200).json({
       success: true,
       message: 'Email verified successfully',
-      token: jwtToken,  
+      token: jwtToken,
+      redirectPath, // Added for navigation
       user: {
         id: user._id,
         email: user.email,
@@ -95,10 +100,9 @@ export const verifyOTP = async (req, res) => {
         mobileNumber: user.mobileNumber,
         city: user.city,
         state: user.state,
-        country: user.country
+        country: user.country,
       },
     });
-
   } catch (error) {
     console.error("Error during OTP verification:", error);
     res.status(500).json({ message: error.message });
