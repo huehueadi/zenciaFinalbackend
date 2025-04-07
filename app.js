@@ -18,7 +18,6 @@ connectionDatabase()
 connectToDB()
 execute()
 
-const server = createServer(app);
 
 app.use(express.json());
 
@@ -35,10 +34,6 @@ app.use('/api/support', ticketRouter)
 app.get('/', (req, res) => {
   res.send("HI");
 });
-
-export const handler = (event, context) => {
-  server(event, context);
-};
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
