@@ -2,7 +2,7 @@ import { MongoClient } from 'mongodb';
 
 const uri = "mongodb+srv://zfintechpvtltd:sMCG5UFvbXzdHrVK@cluster0.zvosn.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 const dbName = 'keys';
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(uri);
 
 let cachedDb = null;
 
