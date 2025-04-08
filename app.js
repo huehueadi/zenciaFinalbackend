@@ -1,8 +1,5 @@
 import cors from 'cors';
 import express from "express";
-import execute from './src/config/db.config.js';
-import connectionDatabase from './src/config/db.connect.js';
-import connectToDB from './src/config/db.key.connect.js';
 import hardwarerouter from './src/routes/harder.routes.js';
 import paymentrouter from './src/routes/payment.routes.js';
 import registerrouter from "./src/routes/register.routes.js";
@@ -13,10 +10,6 @@ const app = express();
 app.use(cors({
   origin: '*'
 }));
-connectionDatabase()
-
-connectToDB()
-execute()
 
 
 app.use(express.json());

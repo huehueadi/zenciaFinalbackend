@@ -18,6 +18,11 @@ const hardwareSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  createdAt: { 
+    type: Date, 
+    default: Date.now 
+  },
+
 });
 
 // Create the model for the schema
