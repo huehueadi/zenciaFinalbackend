@@ -11,14 +11,22 @@ export const isDownloaded = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    console.log('Current hasDownloadedSoftware:', user.hasDownloadedSoftware); // Debug log
-    user.hasDownloadedSoftware = true;
-    await user.save();
-    console.log('Updated user:', user); // Debug log
+    console.log('Current hasDownloadedSoftware:', user.hasDownloadedSoftware); // Before update
+    if (user.hasDownloadedSoftware) {
+      console.log('User already marked as downloaded:', id);
+      return res.status(200).json({ message: 'Already marked as downloaded', user });
+    }
 
-    res.json({ message: 'Download status updated', user });
+    user.hasDownloadedSoftware = true; // Set to true (as intended)
+    await user.save().catch(err => {
+      console.error('MongoDB save error:', err);
+      throw err;
+    });
+    console.log('User updated successfully:', user); // After update
+
+    res.json({ message: 'Download status updated to true', user });
   } catch (error) {
     console.error('Download completion error:', error);
-    res.status(500).json({ message: 'Failed to update download status' });
+    res.status(500).json({ message: 'Failed to update download status', error: error.message });
   }
 };

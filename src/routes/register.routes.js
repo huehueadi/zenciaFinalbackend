@@ -23,9 +23,6 @@ registerrouter.get('/user', authenticateJWT, getuser)
 
 registerrouter.get('/verify-user', authenticateJWT, verifyToken)
 
-registerrouter.put('/downlaod', authenticateJWT, isDownloaded)
-
-
-
+registerrouter.put('/download', authenticateJWT, isDownloaded)
 
 export default registerrouter
