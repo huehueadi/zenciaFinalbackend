@@ -18,7 +18,6 @@ app.use(express.json());
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 app.use('/api', registerrouter)
