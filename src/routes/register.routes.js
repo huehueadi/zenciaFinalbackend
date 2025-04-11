@@ -1,4 +1,5 @@
 import express from 'express'
+import { isDownloaded } from '../controllers/authDownloadController.js'
 import { googleOAuthRegister } from '../controllers/authgoogleController.js'
 import { getuser } from '../controllers/authloginController.js'
 import { submitOnboarding } from '../controllers/authOnbaordController.js'
@@ -21,6 +22,8 @@ registerrouter.post('/onboarding', authenticateJWT, submitOnboarding)
 registerrouter.get('/user', authenticateJWT, getuser)
 
 registerrouter.get('/verify-user', authenticateJWT, verifyToken)
+
+registerrouter.put('/downlaod', authenticateJWT, isDownloaded)
 
 
 

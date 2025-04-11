@@ -71,24 +71,114 @@
 
 
 
+// import { OAuth2Client } from 'google-auth-library';
+// import jwt from 'jsonwebtoken';
+// import User from '../models/User.js'; 
+
+// const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || '424370588012-s14oo8n1aqn4cjda2ahbmavnls1863rj.apps.googleusercontent.com');
+
+// async function handleGoogleOAuth(token, additionalData = {}) {
+//   try {
+//     // Verify the token with Google
+//     const ticket = await client.verifyIdToken({
+//       idToken: token,
+//       audience: '424370588012-s14oo8n1aqn4cjda2ahbmavnls1863rj.apps.googleusercontent.com',
+//     });
+
+//     const payload = ticket.getPayload();
+//     console.log('Token payload:', payload);
+
+//     const oauthProviderId = payload.sub; // Google user ID
+//     const email = payload.email;
+//     const firstName = additionalData.firstName || payload.given_name || 'Unknown';
+//     const lastName = additionalData.lastName || payload.family_name || 'User';
+//     const profilePicture = additionalData.profilePicture || payload.picture;
+
+//     const userData = {
+//       email,
+//       firstName,
+//       lastName,
+//       mobileNumber: additionalData.mobileNumber || null,
+//       city: additionalData.city || null,
+//       state: additionalData.state || null,
+//       country: additionalData.country || null,
+//       profilePicture,
+//       isVerified: true,
+//       isOnboardingCompleted: additionalData.isOnboardingCompleted || false, // Renamed for consistency
+//       oauthProvider: 'google',
+//       oauthProviderId,
+//     };
+
+//     let user = await User.findOne({ oauthProviderId, oauthProvider: 'google' });
+//     if (user) {
+//       const jwtToken = jwt.sign({ id: user._id }, 'Key', { expiresIn: '1h' });
+//       const redirectPath = user.isOnboardingCompleted ? '/dashboard' : '/auth/onboard';
+//       return {
+//         success: true,
+//         message: 'Logged in via Google OAuth',
+//         token: jwtToken,
+//         redirectPath, 
+//         user,
+//       };
+//     }
+
+//     user = await User.findOne({ email });
+//     if (user) {
+//       user.oauthProviderId = oauthProviderId;
+//       user.oauthProvider = 'google';
+//       user.isVerified = true;
+//       user.profilePicture = profilePicture;
+//       await user.save();
+
+//       const jwtToken = jwt.sign({ id: user._id }, 'Key', { expiresIn: '1h' });
+//       const redirectPath = user.isOnboardingCompleted ? '/dashboard' : '/auth/onboard';
+//       return {
+//         success: true,
+//         message: 'Logged in via Google OAuth',
+//         token: jwtToken,
+//         redirectPath,
+//         user,
+//       };
+//     }
+
+//     // New user
+//     user = new User(userData);
+//     await user.save();
+
+//     const jwtToken = jwt.sign({ id: user._id }, 'Key', { expiresIn: '1h' });
+//     const redirectPath = '/auth/onboard'; 
+//     return {
+//       success: true,
+//       message: 'Account created and logged in via Google OAuth',
+//       token: jwtToken,
+//       redirectPath, 
+//       user,
+//     };
+//   } catch (error) {
+//     console.error('Error in Google OAuth:', error);
+//     throw new Error('OAuth processing failed: ' + error.message);
+//   }
+// }
+
+// export default handleGoogleOAuth;
+
+
+
+
 import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js'; // Assuming your User model is imported
+import User from '../models/User.js';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || '424370588012-s14oo8n1aqn4cjda2ahbmavnls1863rj.apps.googleusercontent.com');
-
 async function handleGoogleOAuth(token, additionalData = {}) {
   try {
-    // Verify the token with Google
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: '424370588012-s14oo8n1aqn4cjda2ahbmavnls1863rj.apps.googleusercontent.com',
     });
-
     const payload = ticket.getPayload();
-    console.log('Token payload:', payload);
 
-    const oauthProviderId = payload.sub; // Google user ID
+    const oauthProviderId = payload.sub;
     const email = payload.email;
     const firstName = additionalData.firstName || payload.given_name || 'Unknown';
     const lastName = additionalData.lastName || payload.family_name || 'User';
@@ -104,56 +194,68 @@ async function handleGoogleOAuth(token, additionalData = {}) {
       country: additionalData.country || null,
       profilePicture,
       isVerified: true,
-      isOnboardingCompleted: additionalData.isOnboardingCompleted || false, // Renamed for consistency
+      isOnboardingCompleted: additionalData.isOnboardingCompleted || false,
+      hasDownloadedSoftware: additionalData.hasDownloadedSoftware || false, // New field
       oauthProvider: 'google',
       oauthProviderId,
     };
 
-    // Check if the user already exists with Google OAuth ID
     let user = await User.findOne({ oauthProviderId, oauthProvider: 'google' });
+    let redirectPath;
+
     if (user) {
+      if (!user.isOnboardingCompleted) {
+        redirectPath = '/auth/onboard';
+      } else if (!user.hasDownloadedSoftware) {
+        redirectPath = '/download';
+      } else {
+        redirectPath = '/dashboard';
+      }
       const jwtToken = jwt.sign({ id: user._id }, 'Key', { expiresIn: '1h' });
-      const redirectPath = user.isOnboardingCompleted ? '/dashboard' : '/auth/onboard';
       return {
         success: true,
         message: 'Logged in via Google OAuth',
         token: jwtToken,
-        redirectPath, // Added
+        redirectPath,
         user,
       };
     }
 
-    // Check if the user exists by email
     user = await User.findOne({ email });
     if (user) {
       user.oauthProviderId = oauthProviderId;
       user.oauthProvider = 'google';
       user.isVerified = true;
       user.profilePicture = profilePicture;
+      if (!user.isOnboardingCompleted) {
+        redirectPath = '/auth/onboard';
+      } else if (!user.hasDownloadedSoftware) {
+        redirectPath = '/download';
+      } else {
+        redirectPath = '/dashboard';
+      }
       await user.save();
 
       const jwtToken = jwt.sign({ id: user._id }, 'Key', { expiresIn: '1h' });
-      const redirectPath = user.isOnboardingCompleted ? '/dashboard' : '/auth/onboard';
       return {
         success: true,
         message: 'Logged in via Google OAuth',
         token: jwtToken,
-        redirectPath, // Added
+        redirectPath,
         user,
       };
     }
 
-    // New user
     user = new User(userData);
     await user.save();
+    redirectPath = '/auth/onboard';
 
     const jwtToken = jwt.sign({ id: user._id }, 'Key', { expiresIn: '1h' });
-    const redirectPath = '/auth/onboard'; // New users always go to onboarding
     return {
       success: true,
       message: 'Account created and logged in via Google OAuth',
       token: jwtToken,
-      redirectPath, // Added
+      redirectPath,
       user,
     };
   } catch (error) {

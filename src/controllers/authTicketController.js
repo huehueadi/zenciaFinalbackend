@@ -1,40 +1,53 @@
-import { createTicket, getTicketById, getTickets } from "../services/authTicketService.js";
+import { createTicket, getAllTickets, getTicketById } from "../services/authTicketService.js";
+
 export const createTicketController = async (req, res) => {
   try {
-    const { subject, type, priority, description } = req.body;
-    const {id} = req.user
-    const newTicket = await createTicket({ subject, type, priority, description, userId:id });
-    res.status(201).json({ message: 'Ticket created successfully', ticket: newTicket });
+    // Assuming req.user is an object with an id property from authenticateJWT
+    const { id: userId } = req.user; // Correct destructuring
+    console.log('User ID from token:', userId);
+    console.log('Received files from Multer:', req.files); // Log array of files
+    console.log('Ticket data from body:', req.body);
+
+    const ticketData = req.body;
+    const files = req.files; // Use req.files for array upload
+
+    if (!files || files.length === 0) {
+      return res.status(400).json({ message: "No files uploaded." });
+    }
+
+    const newTicket = await createTicket(ticketData, files, userId);
+    res.status(201).json({
+      message: "Ticket created successfully",
+      ticket: newTicket,
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: error.message });
+    console.error('Controller error:', error);
+    res.status(500).json({ message: "Error creating ticket: " + error.message });
   }
 };
 
-export const getTicketsController = async (req, res) => {
+export const getAllTicketsController = async (req, res) => {
   try {
-
-    const {id} = req.user
-
-
-    const { status } = req.query;
-
-    const userId = id
-    const tickets = await getTickets(status, userId);
+    const tickets = await getAllTickets();
     res.status(200).json(tickets);
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching all tickets:', error);
     res.status(500).json({ message: error.message });
   }
 };
 
-// Fetch a single ticket by ID
 export const getTicketByIdController = async (req, res) => {
   try {
-    const ticket = await getTicketById(req.params.id);
+     const {id} = req.user
+
+     const userId = id
+     const ticket = await getTicketById({userId});
+    if (!ticket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
     res.status(200).json(ticket);
   } catch (error) {
-    console.error(error);
-    res.status(404).json({ message: error.message });
+    console.error('Error fetching ticket by ID:', error);
+    res.status(500).json({ message: error.message });
   }
 };

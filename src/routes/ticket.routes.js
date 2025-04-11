@@ -1,11 +1,13 @@
-import express from 'express'
-import { createTicketController, getTicketByIdController } from '../controllers/authTicketController.js'
-import authenticateJWT from '../middleware/authJwt.authentication.js'
+import express from 'express';
+import { createTicketController, getTicketByIdController } from '../controllers/authTicketController.js';
+import authenticateJWT from '../middleware/authJwt.authentication.js';
+import upload from '../middleware/authMulter.js';
 
-const ticketRouter = express.Router()
+const ticketRouter = express.Router();
 
-ticketRouter.post('/create-ticket', authenticateJWT,createTicketController)
+ticketRouter.post('/create', authenticateJWT ,upload, createTicketController);
 
-ticketRouter.get('get-ticket', authenticateJWT, getTicketByIdController)
+// GET route for retrieving a ticket by ID (protected by JWT)
+ticketRouter.get('/get-ticket', authenticateJWT, getTicketByIdController);
 
-export default ticketRouter
+export default ticketRouter;

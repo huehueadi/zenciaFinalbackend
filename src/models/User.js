@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
   firstName:{type:String, required:true},
   lastName:{type:String, required:true},
-  email: { type: String, required: true},
+  email: { type: String, required: true, },
   passwordHash: { type: String, default: null },
   mobileNumber: { type: String, default: null },
   city: { type: String, default: null },
@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
   oauthProvider: { type: String, default: null },
   oauthProviderId: { type: String, default: null },
   isOnboardingCompleted: { type: Boolean, default: false },
+  hasDownloadedSoftware: { type: Boolean, default: false, required:true},
   profilePicture: { type: String, default: null },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },

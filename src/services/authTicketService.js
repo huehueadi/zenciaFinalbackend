@@ -1,65 +1,44 @@
-// services/ticketService.js
-
 import Ticket from "../models/Ticket.js";
 
-// Create a new ticket
-export const createTicket = async (ticketData) => {
+const createTicket = async (ticketData, files, userId) => {
   try {
-    const { subject, type, priority, description, userId } = ticketData;
-    const newTicket = new Ticket({
-      userId,
+    const { subject, priority, description } = ticketData;
+
+    // Generate file URLs for each uploaded file
+    const fileUrls = files.map(file => `http://localhost:5000/uploads/${file.filename}`);
+
+    const ticket = new Ticket({
       subject,
-      type,
       priority,
       description,
+      attachments: fileUrls, // Store the file URLs in the database
+      userId, // Add userId to the ticket
     });
 
-    await newTicket.save();
-    return newTicket;
-  } catch (error) {
-    throw new Error(`Failed to create ticket: ${error.message}`);
-  }
-};
-
-// Fetch tickets with optional status filter
-// export const getTickets = async (status) => {
-//   try {
-//     const query = status ? { status } : {};
-//     const tickets = await Ticket.find(query);
-//     return tickets;
-//   } catch (error) {
-//     throw new Error(`Failed to fetch tickets: ${error.message}`);
-//   }
-// };
-
-export const getTickets = async (status, userId) => {
-  try {
-    const query = { userId }; 
-    if (status) {
-      query.status = status;
-    }
-
-    const tickets = await Ticket.find(query);
-    return tickets;
-  } catch (error) {
-    throw new Error(`Failed to fetch tickets: ${error.message}`);
-  }
-};
-
-// const query = { userId }; // Always filter by userId
-//     if (status) {
-//       query.status = status; // Add status filter if provided
-//     }
-
-// Fetch a single ticket by ID
-export const getTicketById = async (ticketId) => {
-  try {
-    const ticket = await Ticket.findById(ticketId);
-    if (!ticket) {
-      throw new Error('Ticket not found');
-    }
+    await ticket.save();
     return ticket;
   } catch (error) {
-    throw new Error(`Failed to fetch ticket: ${error.message}`);
+    console.error('Service error creating ticket:', error);
+    throw new Error("Error creating ticket: " + error.message);
   }
 };
+
+const getAllTickets = async () => {
+  try {
+    return await Ticket.find();
+  } catch (error) {
+    console.error('Service error fetching tickets:', error);
+    throw new Error("Error fetching tickets: " + error.message);
+  }
+};
+
+const getTicketById = async (userId) => {
+  try {
+    return await Ticket.find(userId);
+  } catch (error) {
+    console.error('Service error fetching ticket by ID:', error);
+    throw new Error("Error fetching ticket: " + error.message);
+  }
+};
+
+export { createTicket, getAllTickets, getTicketById };

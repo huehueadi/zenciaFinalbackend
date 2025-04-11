@@ -1,5 +1,6 @@
 import cors from 'cors';
 import express from "express";
+import path from 'path';
 import hardwarerouter from './src/routes/harder.routes.js';
 import paymentrouter from './src/routes/payment.routes.js';
 import registerrouter from "./src/routes/register.routes.js";
@@ -13,6 +14,12 @@ app.use(cors({
 
 
 app.use(express.json());
+
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 app.use('/api', registerrouter)
 
