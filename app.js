@@ -17,9 +17,6 @@ app.use(express.json());
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
-
-
-
 app.use('/api', registerrouter)
 
 app.use('/api/hardware', hardwarerouter)

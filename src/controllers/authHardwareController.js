@@ -11,17 +11,14 @@ export const hardwareregister = async(req, res)=>{
           return res.status(400).json({ message: 'Hardware ID already exists' }); // Return to prevent further execution
         }
     
-        // Create new hardware entry
         const newHardware = new Hardware({
           userId,
           hardwareId,
           nickName
         });
     
-        // Save the hardware
         await newHardware.save();
     
-        // Send success response
         return res.status(201).json({
           success: true,
           message: 'Hardware registered successfully',
@@ -29,11 +26,8 @@ export const hardwareregister = async(req, res)=>{
         });
     
       } catch (error) {
-        // Log the error and send an error response if something goes wrong
         console.error('Error registering hardware:', error);
-    
-        // Ensure a response is sent only once
-       
+           
           return res.status(500).json({ message: 'Internal server error' });
       }
     };

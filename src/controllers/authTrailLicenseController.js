@@ -1,5 +1,6 @@
 import NodeCache from "node-cache";
 import Plan from "../models/Plan.js";
+import TrailLicense from "../models/TrailLicense.js";
 import { generateTrailLicense } from "../services/authTrailService.js";
 // export async function generateTrailLicenseController(req, res) {
 // try {
@@ -70,6 +71,27 @@ export const generateTrailLicenseController = async (req, res) => {
       return res.status(500).json({
         success: false,
         message: error.message || "Something went wrong",
+      });
+    }
+  };
+
+  
+  export const getalltrial = async (req, res) => {
+    try {
+      const { id } = req.user;
+      const trialLicenses = await TrailLicense.find({ userId: id });
+  
+ 
+  
+      return res.status(200).json({
+        message: 'Fetched all trial licenses',
+        getkeys: trialLicenses,
+      });
+    } catch (error) {
+      console.error('Error fetching trial licenses:', error);
+      return res.status(500).json({
+        message: 'Failed to fetch trial licenses',
+        error: error.message,
       });
     }
   };
