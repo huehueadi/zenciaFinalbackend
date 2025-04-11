@@ -72,6 +72,10 @@ class PaymentService {
     const plan = await Plan.findById(planId);
     if (!plan) throw new Error('Invalid subscription plan');
 
+    const ishardwareexist = await Payment.findOne({hardwareId})
+    if(ishardwareexist)
+      throw new Error('License Key already Generated');
+
     const amountInCents = plan.price * 100;
     if (amountInCents < 50) throw new Error('Amount must be at least $0.50 USD');
 
