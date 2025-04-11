@@ -13,10 +13,7 @@ const licenseSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  plan_id:{
-    type:String,
-    required:true
-  },
+  plan_id:{ type: mongoose.Schema.Types.ObjectId, ref: "Plan" },
 
   expiration_date: {
     type: String,
