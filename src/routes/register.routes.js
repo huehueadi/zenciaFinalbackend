@@ -1,7 +1,7 @@
 import express from 'express'
 import { isDownloaded } from '../controllers/authDownloadController.js'
 import { googleOAuthRegister } from '../controllers/authgoogleController.js'
-import { getuser } from '../controllers/authloginController.js'
+import { getuser, login } from '../controllers/authloginController.js'
 import { submitOnboarding } from '../controllers/authOnbaordController.js'
 import { register, resendOTP, verifyOTP } from '../controllers/authregisterController.js'
 import authenticateJWT from '../middleware/authJwt.authentication.js'
@@ -10,6 +10,8 @@ import verifyToken from '../middleware/authjwtVerification.js'
 const registerrouter = express.Router()
 
 registerrouter.post('/register', register)
+
+registerrouter.post('/login', login)
 
 registerrouter.post('/verfiy', verifyOTP)
 
