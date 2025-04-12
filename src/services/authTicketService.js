@@ -5,7 +5,7 @@ const createTicket = async (ticketData, files, userId) => {
     const { subject, priority, description } = ticketData;
 
     // Generate file URLs for each uploaded file
-    const fileUrls = files.map(file => `http://localhost:5000/uploads/${file.filename}`);
+    const fileUrls = files.map(file => `https://zencia-finalbackend.vercel.app/uploads/${file.filename}`);
 
     const ticket = new Ticket({
       subject,
