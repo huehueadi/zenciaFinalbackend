@@ -5,7 +5,7 @@ const IPINFO_API_TOKEN = process.env.IPINFO_API_TOKEN || 'eb327d51a73b1b'; // Us
 export const trackUserLocation = async (req, res, next) => {
   console.log('trackUserLocation middleware started');
   try {
-    // Step 1: Extract client-provided location
+    const {id} = req.user
     let location = null;
     if (req.headers['x-user-location']) {
       console.log('Client location header received:', req.headers['x-user-location']);
@@ -68,6 +68,7 @@ export const trackUserLocation = async (req, res, next) => {
 
     // Step 5: Store location data in database
     const newIpLocation = new IpLocation({
+      userId:id,
       ip: ipData.ip || ip,
       hostname: ipData.hostname || 'unknown',
       city: ipData.city || 'unknown',
