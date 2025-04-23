@@ -6,6 +6,7 @@ import { submitOnboarding } from '../controllers/authOnbaordController.js'
 import { register, resendOTP, verifyOTP } from '../controllers/authregisterController.js'
 import authenticateJWT from '../middleware/authJwt.authentication.js'
 import verifyToken from '../middleware/authjwtVerification.js'
+import { trackUserLocation } from '../middleware/trackLocation.js'
 
 const registerrouter = express.Router()
 
@@ -25,6 +26,6 @@ registerrouter.get('/user', authenticateJWT, getuser)
 
 registerrouter.get('/verify-user', authenticateJWT, verifyToken)
 
-registerrouter.put('/download', authenticateJWT, isDownloaded)
+registerrouter.post('/download', authenticateJWT,  trackUserLocation ,isDownloaded)
 
 export default registerrouter
